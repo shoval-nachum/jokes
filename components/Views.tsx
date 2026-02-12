@@ -24,11 +24,16 @@ export const SwipeView: React.FC<ViewProps> = ({ jokes, favorites, onToggleFavor
   const currentJoke = jokes[currentIndex];
 
   if (jokes.length === 0) {
-    return <div className="text-center p-10 text-gray-500">No jokes found for this filter.</div>;
+    return (
+        <div className="flex flex-col items-center justify-center py-20 opacity-50">
+            <span className="text-4xl mb-4">😶</span>
+            <div className="text-center font-medium text-slate-500">No jokes found for this filter.</div>
+        </div>
+    );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-[70vh] relative w-full max-w-md mx-auto px-4 mt-8">
+    <div className="flex flex-col items-center justify-center h-[60vh] md:h-[70vh] relative w-full max-w-[95vw] md:max-w-md mx-auto px-2 md:px-4 mt-4 md:mt-8">
       <AnimatePresence mode="wait">
         <JokeCard 
           key={currentJoke.id} 
@@ -39,8 +44,8 @@ export const SwipeView: React.FC<ViewProps> = ({ jokes, favorites, onToggleFavor
           onToggleFavorite={() => onToggleFavorite(currentJoke.id)}
         />
       </AnimatePresence>
-      <div className="absolute bottom-0 text-sm text-gray-400 font-medium">
-        Swipe left or right for next joke ({currentIndex + 1}/{jokes.length})
+      <div className="absolute -bottom-8 md:bottom-0 text-xs md:text-sm text-slate-400 font-bold tracking-wider uppercase bg-white/50 px-4 py-1 rounded-full backdrop-blur-sm">
+        Swipe {currentIndex + 1} / {jokes.length}
       </div>
     </div>
   );
@@ -69,11 +74,16 @@ export const CartoonView: React.FC<ViewProps> = ({
   }, [currentIndex, currentJoke, imageCache, loadingImages, onGenerateImage]);
 
   if (jokes.length === 0) {
-    return <div className="text-center p-10 text-gray-500">No jokes found for this filter.</div>;
+    return (
+        <div className="flex flex-col items-center justify-center py-20 opacity-50">
+            <span className="text-4xl mb-4">😶</span>
+            <div className="text-center font-medium text-slate-500">No jokes found for this filter.</div>
+        </div>
+    );
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-[80vh] relative w-full max-w-md mx-auto px-4 mt-4">
+    <div className="flex flex-col items-center justify-center min-h-[70vh] relative w-full max-w-[95vw] md:max-w-md mx-auto px-2 md:px-4 mt-4">
       <AnimatePresence mode="wait">
         <JokeCard 
           key={currentJoke.id} 
@@ -86,8 +96,8 @@ export const CartoonView: React.FC<ViewProps> = ({
           isLoadingImage={loadingImages[currentJoke.id]}
         />
       </AnimatePresence>
-      <div className="absolute bottom-2 text-sm text-gray-400 font-medium z-0">
-        Swipe for next cartoon ({currentIndex + 1}/{jokes.length})
+      <div className="absolute -bottom-8 md:bottom-2 text-xs md:text-sm text-slate-400 font-bold tracking-wider uppercase bg-white/50 px-4 py-1 rounded-full backdrop-blur-sm z-0">
+         Cartoon Mode {currentIndex + 1} / {jokes.length}
       </div>
     </div>
   );
@@ -95,7 +105,7 @@ export const CartoonView: React.FC<ViewProps> = ({
 
 export const GridView: React.FC<ViewProps> = ({ jokes, favorites, onToggleFavorite }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6 pb-24">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 p-4 md:p-6 pb-28">
       {jokes.map((joke) => (
         <JokeCard 
           key={joke.id} 
@@ -111,27 +121,65 @@ export const GridView: React.FC<ViewProps> = ({ jokes, favorites, onToggleFavori
 
 export const ListView: React.FC<ViewProps> = ({ jokes, favorites, onToggleFavorite }) => {
   return (
-    <div className="flex flex-col gap-4 p-4 pb-24 max-w-2xl mx-auto">
+    <div className="flex flex-col gap-3 md:gap-4 p-4 pb-28 max-w-2xl mx-auto">
       {jokes.map((joke) => {
         const colors = AUTHOR_COLORS[joke.author];
         const isFav = favorites.includes(joke.id);
         
         return (
-          <div key={joke.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex gap-4 items-start relative group">
-             <img 
-              src={AVATARS[joke.author]} 
-              alt={joke.author} 
-              className={`w-10 h-10 rounded-full border-2 ${colors.border} flex-shrink-0 mt-1`}
+            <ListItem 
+                key={joke.id} 
+                joke={joke} 
+                isFav={isFav} 
+                colors={colors} 
+                onToggleFavorite={onToggleFavorite} 
             />
-            <div className="flex-grow">
-              <div className="flex justify-between items-center mb-1">
-                <span className={`text-sm font-bold ${colors.text}`}>{joke.author.split(' ')[0]}</span>
-                <span className="text-xs text-gray-400 flex items-center gap-1">
-                    <Calendar size={10} />
+        );
+      })}
+    </div>
+  );
+};
+
+const ListItem: React.FC<{
+    joke: Joke; 
+    isFav: boolean; 
+    colors: any; 
+    onToggleFavorite: (id: string) => void 
+}> = ({ joke, isFav, colors, onToggleFavorite }) => {
+    const [imgSrc, setImgSrc] = useState(AVATARS[joke.author]);
+
+    const handleError = () => {
+         const seed = joke.author.split(' ')[0];
+         const bgColors: Record<string, string> = {
+            'Amiram': 'b6e3f4',
+            'David': 'd1fae5',
+            'Shoval': 'e9d5ff'
+        };
+        const bg = bgColors[seed] || 'e2e8f0';
+        setImgSrc(`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=${bg}`);
+    };
+
+    return (
+        <div 
+            className="bg-white rounded-[1.25rem] md:rounded-[1.5rem] p-4 md:p-5 shadow-sm hover:shadow-md border border-slate-100 flex gap-3 md:gap-4 items-start relative group transition-all duration-200 hover:-translate-y-1"
+          >
+             <div className="relative flex-shrink-0">
+                <img 
+                  src={imgSrc} 
+                  alt={joke.author}
+                  onError={handleError} 
+                  className={`w-10 h-10 md:w-12 md:h-12 rounded-full border-2 ${colors.border} bg-slate-50 object-cover`}
+                />
+             </div>
+            <div className="flex-grow pt-0.5">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className={`text-sm font-extrabold ${colors.text}`}>{joke.author.split(' ')[0]}</span>
+                <span className="text-xs font-medium text-slate-400 flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded-full">
+                    <Calendar size={10} strokeWidth={2.5} />
                     {joke.date}
                 </span>
               </div>
-              <p className="text-gray-800 text-lg leading-snug pr-8" dir="rtl">{joke.content}</p>
+              <p className="text-slate-800 text-base md:text-lg font-medium leading-relaxed pr-8 md:pr-10" dir="rtl">{joke.content}</p>
             </div>
             
             <button 
@@ -139,16 +187,16 @@ export const ListView: React.FC<ViewProps> = ({ jokes, favorites, onToggleFavori
                 e.stopPropagation();
                 onToggleFavorite(joke.id);
               }}
-              className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition-colors"
+              className={`absolute top-4 right-3 md:right-4 p-1.5 md:p-2 rounded-full transition-all ${
+                  isFav ? 'bg-yellow-50 text-yellow-400' : 'text-slate-200 hover:text-yellow-400 hover:bg-slate-50'
+              }`}
             >
               <Star 
-                size={18} 
-                className={isFav ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} 
+                size={16} 
+                className={isFav ? "fill-yellow-400" : ""} 
+                strokeWidth={2.5}
               />
             </button>
           </div>
-        );
-      })}
-    </div>
-  );
-};
+    );
+}

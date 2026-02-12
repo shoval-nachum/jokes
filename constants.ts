@@ -22,7 +22,7 @@ export const AUTHOR_COLORS = {
 };
 
 export const AVATARS = {
-  [Author.Amiram]: "https://api.dicebear.com/7.x/avataaars/svg?seed=Amiram&backgroundColor=b6e3f4",
-  [Author.David]: "https://api.dicebear.com/7.x/avataaars/svg?seed=David&backgroundColor=c0aede",
-  [Author.Shoval]: "https://api.dicebear.com/7.x/avataaars/svg?seed=Shoval&backgroundColor=ffdfbf"
+  [Author.Amiram]: "./avatars/amiram.jpg",
+  [Author.David]: "./avatars/david.jpg",
+  [Author.Shoval]: "./avatars/shoval.jpg"
 };
