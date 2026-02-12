@@ -171,20 +171,36 @@ const FilterButton: React.FC<{
     onClick: () => void
 }> = ({ author, isActive, colors, count, onClick }) => {
     const [imgSrc, setImgSrc] = useState(AVATARS[author]);
+    const [imgAttempt, setImgAttempt] = useState(0);
 
     useEffect(() => {
         setImgSrc(AVATARS[author]);
+        setImgAttempt(0);
     }, [author]);
 
     const handleError = () => {
-         const seed = author.split(' ')[0];
-         const bgColors: Record<string, string> = {
-            'Amiram': 'b6e3f4',
-            'David': 'd1fae5',
-            'Shoval': 'e9d5ff'
-        };
-        const bg = bgColors[seed] || 'e2e8f0';
-        setImgSrc(`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=${bg}`);
+         const firstName = author.split(' ')[0];
+         const lowerName = firstName.toLowerCase();
+         
+         if (imgAttempt === 0) {
+             setImgSrc(`./${lowerName}.jpg`);
+             setImgAttempt(1);
+         } else if (imgAttempt === 1) {
+             setImgSrc(`./${lowerName}.png`);
+             setImgAttempt(2);
+         } else if (imgAttempt === 2) {
+             setImgSrc(`./${firstName}.jpg`);
+             setImgAttempt(3);
+         } else {
+             const seed = firstName;
+             const bgColors: Record<string, string> = {
+                'Amiram': 'b6e3f4',
+                'David': 'd1fae5',
+                'Shoval': 'e9d5ff'
+            };
+            const bg = bgColors[seed] || 'e2e8f0';
+            setImgSrc(`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=${bg}`);
+         }
     };
 
     return (

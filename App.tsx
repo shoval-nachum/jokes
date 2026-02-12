@@ -11,7 +11,15 @@ const App: React.FC = () => {
   const [authorFilter, setAuthorFilter] = useState<Author | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [sortOption, setSortOption] = useState<SortOption>('newest');
-  const [showFavorites, setShowFavorites] = useState(false);
+  
+  // Persist showFavorites toggle
+  const [showFavorites, setShowFavorites] = useState(() => {
+    try {
+      return localStorage.getItem('showFavorites') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
   
   // Joke Management State
   const [customJokes, setCustomJokes] = useState<Joke[]>(() => {
@@ -40,6 +48,16 @@ const App: React.FC = () => {
       return [];
     }
   });
+
+  // Persist favorites to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('jokeFavorites', JSON.stringify(favorites));
+  }, [favorites]);
+
+  // Persist showFavorites to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('showFavorites', String(showFavorites));
+  }, [showFavorites]);
 
   const generateImageForJoke = async (joke: Joke) => {
     if (imageCache[joke.id] || loadingImages[joke.id]) return;
@@ -86,7 +104,6 @@ const App: React.FC = () => {
       const newFavs = prev.includes(id) 
         ? prev.filter(favId => favId !== id) 
         : [...prev, id];
-      localStorage.setItem('jokeFavorites', JSON.stringify(newFavs));
       return newFavs;
     });
   };

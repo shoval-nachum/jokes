@@ -28,22 +28,40 @@ export const JokeCard: React.FC<JokeCardProps> = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const [isSharing, setIsSharing] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  
   const [avatarSrc, setAvatarSrc] = useState(AVATARS[joke.author]);
+  const [imgAttempt, setImgAttempt] = useState(0);
 
   useEffect(() => {
     setAvatarSrc(AVATARS[joke.author]);
+    setImgAttempt(0);
   }, [joke.author]);
 
   const handleAvatarError = () => {
-    // Fallback to DiceBear if local image fails
-    const seed = joke.author.split(' ')[0];
-    const bgColors: Record<string, string> = {
-        'Amiram': 'b6e3f4',
-        'David': 'd1fae5',
-        'Shoval': 'e9d5ff'
-    };
-    const bg = bgColors[seed] || 'e2e8f0';
-    setAvatarSrc(`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=${bg}`);
+    const firstName = joke.author.split(' ')[0];
+    const lowerName = firstName.toLowerCase();
+    
+    // Try sequence: Default -> Root JPG -> Root PNG -> Root Capitalized JPG -> DiceBear
+    if (imgAttempt === 0) {
+        setAvatarSrc(`./${lowerName}.jpg`);
+        setImgAttempt(1);
+    } else if (imgAttempt === 1) {
+        setAvatarSrc(`./${lowerName}.png`);
+        setImgAttempt(2);
+    } else if (imgAttempt === 2) {
+        setAvatarSrc(`./${firstName}.jpg`);
+        setImgAttempt(3);
+    } else {
+        // Fallback to DiceBear if all local files fail
+        const seed = firstName;
+        const bgColors: Record<string, string> = {
+            'Amiram': 'b6e3f4',
+            'David': 'd1fae5',
+            'Shoval': 'e9d5ff'
+        };
+        const bg = bgColors[seed] || 'e2e8f0';
+        setAvatarSrc(`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=${bg}`);
+    }
   };
 
   const handleShare = async (e: React.MouseEvent) => {
